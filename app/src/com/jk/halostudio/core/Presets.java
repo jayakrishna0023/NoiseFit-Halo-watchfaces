@@ -2,7 +2,7 @@ package com.jk.halostudio.core;
 
 /** Preinstalled faces: original procedural art + clock styling (no third-party artwork). */
 public final class Presets {
-    public static final String[] CATEGORIES = {"All", "Cosmic", "Space", "Nature", "Luxury", "Cyber", "Neon", "Abstract", "Minimal", "Retro"};
+    public static final String[] CATEGORIES = {"All", "Alien Tech", "Cosmic", "Space", "Nature", "Luxury", "Cyber", "Neon", "Abstract", "Minimal", "Retro"};
 
     public static final class Spec {
         public final String name, category, font;
@@ -159,6 +159,31 @@ public final class Presets {
             g("Koi Pond", "Nature", 17, new int[]{0xFF042F2E, 0xFF0F766E, 0xFFF97316, 0xFFFFEDD5}, 23, "serif", 0xFFFFFFFF, 0xFFFFEDD5, 6),
             g("Opal", "Abstract", 17, new int[]{0xFFF0F9FF, 0xFFA5F3FC, 0xFFF5D0FE, 0xFFFEF9C3, 0xFFBBF7D0}, 31, "sans-serif-black", 0xFF0F172A, 0xFF1E293B, 0),
             g("Prism Kaleido", "Abstract", 25, new int[]{0xFF1E1B4B, 0xFF06B6D4, 0xFFF472B6, 0xFFFDE047, 0xFFA3E635}, 12, "sans-serif-black", 0xFFFFFFFF, 0xFFFFFFFF, 12),
+            // ---- v6: Alien Tech (original sci-fi gauntlet dials, one colour per generation)
+            new Spec("Xeno Prime", "Alien Tech", 30, new int[]{0xFF050805, 0xFF1F2A1F, 0xFF4ADE80, 0xFFA3E635}, 3, G, "sans-serif-black", false, false,
+                    0xFFECFCCB, 0xFFA3E635, true, 0xFFA3E635, 0, 12, 0xFF84CC16, 0, true, 0, 0),
+            new Spec("Xeno Nova", "Alien Tech", 30, new int[]{0xFF0A0303, 0xFF2A1010, 0xFFEF4444, 0xFFFB7185}, 5, G, "sans-serif-black", false, false,
+                    0xFFFFE4E6, 0xFFFB7185, true, 0xFFFDA4AF, 0, 12, 0xFFEF4444, 0, true, 0, 0),
+            new Spec("Xeno Cryo", "Alien Tech", 30, new int[]{0xFF02060A, 0xFF10202A, 0xFF22D3EE, 0xFF67E8F9}, 7, G, "sans-serif-black", false, false,
+                    0xFFECFEFF, 0xFF67E8F9, true, 0xFFA5F3FC, 0, 12, 0xFF06B6D4, 0, true, 0, 0),
+            new Spec("Xeno Elite", "Alien Tech", 30, new int[]{0xFF0A0703, 0xFF2A2010, 0xFFF59E0B, 0xFFFDE68A}, 9, G, "serif", true, false,
+                    0xFFFFFBEB, 0xFFFDE68A, true, 0xFFFDE68A, 0, 10, 0xFFF59E0B, 0, true, 0, 0),
+            new Spec("Xeno Void", "Alien Tech", 30, new int[]{0xFF06030C, 0xFF1E1030, 0xFFA855F7, 0xFFE879F9}, 11, G, "sans-serif-black", false, false,
+                    0xFFFAF5FF, 0xFFE879F9, true, 0xFFF0ABFC, 0, 12, 0xFFA855F7, 0, true, 0, 0),
+            new Spec("Scanner Lime", "Alien Tech", 31, new int[]{0xFF020702, 0xFF166534, 0xFF84CC16}, 3, G, "monospace", true, false,
+                    0xFFD9F99D, 0xFFD9F99D, false, 0xFFA3E635, 0, 10, 0xFF65A30D, 0, true, 0, 0),
+            new Spec("Scanner Ice", "Alien Tech", 31, new int[]{0xFF01060A, 0xFF0E7490, 0xFF22D3EE}, 6, G, "monospace", true, false,
+                    0xFFCFFAFE, 0xFFCFFAFE, false, 0xFF67E8F9, 0, 10, 0xFF0891B2, 0, true, 0, 0),
+            new Spec("Scanner Ember", "Alien Tech", 31, new int[]{0xFF0A0402, 0xFF9A3412, 0xFFFB923C}, 8, G, "monospace", true, false,
+                    0xFFFFEDD5, 0xFFFFEDD5, false, 0xFFFDBA74, 0, 10, 0xFFEA580C, 0, true, 0, 0),
+            new Spec("Reactor Green", "Alien Tech", 32, new int[]{0xFF020802, 0xFF14532D, 0xFF22C55E, 0xFFBEF264}, 3, G, "sans-serif-black", false, false,
+                    0xFFFFFFFF, 0xFFBEF264, true, 0xFFD9F99D, 0, 10, 0xFF22C55E, 3, true, 0, 0),
+            new Spec("Reactor Plasma", "Alien Tech", 32, new int[]{0xFF04020A, 0xFF4C1D95, 0xFFEC4899, 0xFFF0ABFC}, 5, G, "sans-serif-black", false, false,
+                    0xFFFFFFFF, 0xFFF0ABFC, true, 0xFFF5D0FE, 0, 10, 0xFFEC4899, 3, true, 0, 0),
+            new Spec("Reactor Sun", "Alien Tech", 32, new int[]{0xFF0A0500, 0xFF9A3412, 0xFFFBBF24, 0xFFFFFBEB}, 9, G, "sans-serif-black", false, false,
+                    0xFFFFFFFF, 0xFFFDE68A, true, 0xFFFEF3C7, 0, 10, 0xFFF59E0B, 3, true, 0, 0),
+            new Spec("Xeno Tiles", "Alien Tech", 30, new int[]{0xFF050805, 0xFF1F2A1F, 0xFF4ADE80, 0xFFA3E635}, 13, M, "monospace", true, false,
+                    0xFFA3E635, 0xFFA3E635, false, 0xFFD9F99D, 0xFF0A120A, 8, 0xFF84CC16, 0, true, 0, 0),
     };
 
     private Presets() {}

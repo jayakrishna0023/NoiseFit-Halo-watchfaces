@@ -11,7 +11,7 @@ public final class Art {
     public static final String[] NAMES = {"Nebula", "Aurora", "Dunes", "Synthwave", "Planet", "Bokeh", "Mesh",
             "Topography", "Low poly", "Waves", "Rings", "Sunburst", "Marble", "Starfield", "Halftone", "Minimal",
             "Black hole", "Liquid", "Flow", "Mountains", "Crystal", "Tunnel", "Glass", "Galaxy", "Circuit", "Kaleido",
-            "Code rain", "Fireflies", "Sunset sea", "Bauhaus"};
+            "Code rain", "Fireflies", "Sunset sea", "Bauhaus", "Xeno core", "HUD scanner", "Reactor"};
 
     private Art() {}
 
@@ -554,6 +554,88 @@ public final class Art {
                     }
                 }
                 grain(px, r, 6);
+                break;
+            }
+            case 30: { // Xeno core: armoured plates, glowing seams, hexagonal energy core
+                int dark = scale(pal[0], 0.6f), glowC = pal[pal.length - 1], mid = pal[Math.min(1, pal.length - 1)];
+                for (int y = 0; y < S; y++) for (int x = 0; x < S; x++) {
+                    float dx = x - 233, dy = y - 233, d = (float) Math.hypot(dx, dy), a = (float) Math.atan2(dy, dx);
+                    float brushed = 0.85f + 0.15f * n.value(a * 60, d / 40f);           // radial brushed metal
+                    int c = scale(mix(dark, mid, 0.18f + 0.12f * (float) Math.sin(a * 2 + 1)), brushed);
+                    float seg = (float) ((a / 6.28318f * 8 + 8.5f) % 1);                // 8 plates
+                    float seam = smooth(0.035f, 0f, Math.min(seg, 1 - seg)) * smooth(150, 170, d);
+                    float ring = smooth(3f, 0f, Math.abs(d - 168)) + smooth(2f, 0f, Math.abs(d - 222)) * 0.8f;
+                    c = mix(c, scale(dark, 0.4f), smooth(0.06f, 0f, Math.min(seg, 1 - seg)) * smooth(160, 175, d) * 0.6f);
+                    c = add(c, glowC, (seam + ring) * 0.9f);
+                    c = add(c, glowC, (float) Math.exp(-(d - 168) * (d - 168) / 300f) * 0.25f);
+                    float hex = Math.max(Math.abs(dx) * 0.866f + Math.abs(dy) * 0.5f, Math.abs(dy));   // hexagon metric
+                    float core = smooth(108, 96, hex);
+                    c = mix(c, mix(scale(dark, 0.5f), glowC, 0.12f + 0.1f * n.fbm(x / 25f, y / 25f, 3)), core);
+                    c = add(c, glowC, smooth(3f, 0f, Math.abs(hex - 100)) * 0.9f + smooth(1.5f, 0f, Math.abs(hex - 88)) * 0.5f);
+                    for (int k = 0; k < 3; k++) {                                       // tri-blade emblem, faint
+                        float ang = a - k * 2.0944f - 1.5708f;
+                        float w = Math.abs((float) Math.sin(ang)) * d;
+                        if (Math.cos(ang) > 0 && d > 20 && d < 80) c = add(c, glowC, smooth(9, 5, w) * 0.16f);
+                    }
+                    float bolt = (float) (((a / 6.28318f) * 48 + 48) % 1);
+                    if (d > 198 && d < 214 && Math.abs(bolt - 0.5f) < 0.08f) c = add(c, 0xFFFFFFFF, 0.25f);
+                    px[y * S + x] = c;
+                }
+                grain(px, r, 5);
+                break;
+            }
+            case 31: { // HUD scanner: rings, ticks, arcs, radar sweep, hex grid
+                fill(px, scale(pal[0], 0.5f));
+                int glowC = pal[pal.length - 1], mid = pal[Math.min(1, pal.length - 1)];
+                float sweep = r.nextFloat() * 6.28f;
+                float[] arcs = new float[12];
+                for (int i = 0; i < arcs.length; i++) arcs[i] = r.nextFloat();
+                for (int y = 0; y < S; y++) for (int x = 0; x < S; x++) {
+                    float dx = x - 233, dy = y - 233, d = (float) Math.hypot(dx, dy), a = (float) Math.atan2(dy, dx);
+                    float u = (a + 3.14159f) / 6.28318f;
+                    int c = px[y * S + x];
+                    float hx = x / 16f, hy = y / 13.86f + ((int) (x / 16f) % 2) * 0.5f;      // hex-ish grid dots
+                    float gd = (float) Math.hypot(hx - Math.round(hx), hy - Math.round(hy));
+                    c = add(c, mid, smooth(0.12f, 0.02f, gd) * 0.35f);
+                    for (float rr : new float[]{60, 118, 176, 222}) c = add(c, glowC, smooth(1.4f, 0f, Math.abs(d - rr)) * 0.55f);
+                    float tick = Math.abs(((u * 120) % 1) - 0.5f);
+                    if (d > 206 && d < 216 && tick > 0.38f) c = add(c, glowC, 0.7f);
+                    if (d > 196 && d < 216 && Math.abs(((u * 12) % 1) - 0.5f) > 0.46f) c = add(c, 0xFFFFFFFF, 0.6f);
+                    int band = d > 128 && d < 140 ? 0 : d > 186 && d < 194 ? 1 : -1;
+                    if (band >= 0) { int k = Math.min(5, (int) (u * 6)); if (arcs[k + band * 6] > 0.35f && ((u * 6) % 1) < 0.78f) c = add(c, glowC, 0.65f); }
+                    float da = (float) Math.IEEEremainder(a - sweep, 6.28318);
+                    if (da < 0 && da > -1.2f && d < 222) c = add(c, glowC, (1 + da / 1.2f) * 0.35f * smooth(10, 60, d));
+                    if (Math.abs(dx) < 0.8f && d < 222 || Math.abs(dy) < 0.8f && d < 222) c = add(c, glowC, 0.22f);
+                    px[y * S + x] = c;
+                }
+                for (int i = 0; i < 9; i++) {                                          // blips
+                    float rr = 70 + r.nextFloat() * 140, aa = r.nextFloat() * 6.28f;
+                    disc(px, 233 + (float) Math.cos(aa) * rr, 233 + (float) Math.sin(aa) * rr, 3, glowC, 1f, 1.2f);
+                    disc(px, 233 + (float) Math.cos(aa) * rr, 233 + (float) Math.sin(aa) * rr, 12, glowC, 0.2f, 10);
+                }
+                break;
+            }
+            case 32: { // Plasma reactor: energy core with filaments inside a segmented containment ring
+                fill(px, scale(pal[0], 0.35f));
+                int glowC = pal[pal.length - 1];
+                for (int y = 0; y < S; y++) for (int x = 0; x < S; x++) {
+                    float dx = x - 233, dy = y - 233, d = (float) Math.hypot(dx, dy), a = (float) Math.atan2(dy, dx);
+                    int c = px[y * S + x];
+                    float fil = n.fbm(a * 3 + 10, d / 30f, 5);
+                    float strand = smooth(0.06f, 0f, Math.abs(fil - 0.5f)) * smooth(200, 40, d);
+                    c = add(c, ramp(pal, 0.5f + 0.5f * (1 - d / 200f)), strand * 0.9f);
+                    c = add(c, glowC, (float) Math.exp(-d * d / 2500f) * 0.8f);
+                    c = add(c, pal[Math.min(2, pal.length - 1)], (float) Math.exp(-d * d / 12000f) * 0.25f);
+                    float seg = (float) (((a / 6.28318f) * 16 + 16) % 1);
+                    if (d > 200 && d < 226) {
+                        int plate = scale(mix(pal[0], 0xFF888888, 0.25f), 0.7f + 0.3f * (float) Math.sin(a * 3));
+                        c = mix(c, plate, smooth(200, 203, d) * smooth(226, 223, d) * (seg > 0.08f ? 1 : 0.2f));
+                        if (seg <= 0.08f) c = add(c, glowC, 0.8f);
+                    }
+                    c = add(c, glowC, smooth(1.5f, 0f, Math.abs(d - 196)) * 0.8f);
+                    px[y * S + x] = c;
+                }
+                stars(px, r, 60, 0.9f, glowC);
                 break;
             }
             default: { // Minimal

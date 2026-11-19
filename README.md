@@ -13,8 +13,8 @@ over Bluetooth, without the official app's paid customisation.
 ## Features
 | Area | What you can do |
 |---|---|
-| Gallery | **90 preinstalled faces** in 9 categories (Cosmic, Space, Nature, Luxury, Cyber, Neon, Abstract, Minimal, Retro), search, face of the day, **🎲 Surprise** (random readable face), animated detail view with live time |
-| Generative art | **30 procedural art styles** (nebula, aurora, dunes, synthwave, planet, bokeh, mesh, topography, low-poly, waves, rings, sunburst, marble, starfield, halftone, minimal, black hole, liquid chrome, flow field, mountains, crystal, neon tunnel, glass, spiral galaxy, circuit, kaleidoscope, code rain, fireflies, sunset sea, Bauhaus) × palettes × seeds — all original, generated on the phone |
+| Gallery | **102 preinstalled faces** in 10 categories (Alien Tech, Cosmic, Space, Nature, Luxury, Cyber, Neon, Abstract, Minimal, Retro), search, face of the day, **🎲 Surprise** (random readable face), animated detail view with live time |
+| Generative art | **33 procedural art styles** (nebula, aurora, dunes, synthwave, planet, bokeh, mesh, topography, low-poly, waves, rings, sunburst, marble, starfield, halftone, minimal, black hole, liquid chrome, flow field, mountains, crystal, neon tunnel, glass, spiral galaxy, circuit, kaleidoscope, code rain, fireflies, sunset sea, Bauhaus, xeno core, HUD scanner, plasma reactor) × palettes × seeds — all original, generated on the phone |
 | Layouts | **Galaxy** (big clock, movable) · **Moon** (stacked clock + AM/PM on tiles) — from your own captured faces |
 | Background | Generative art · photo with **interactive crop** (drag, pinch, rotate) · 10 gradients + custom · solid colour |
 | Effects | Brightness, contrast, saturation, blur, vignette, black & white |
@@ -26,6 +26,7 @@ over Bluetooth, without the official app's paid customisation.
 | AOD (experimental) | Read the watch's always-on settings; set mode (always / scheduled / off), schedule and analog/digital style |
 | Live previews | Animated in-app previews: twinkling & shooting stars, bokeh, code rain, fireflies, embers, shimmer, live seconds ring, 3D tilt; animated logo & launch screen |
 | Editing | Hue shift, frames (thin / neon / minute ticks / double ring), textures (grain, scanlines, glass sheen, dot grid), random harmonious palettes, reverse/darken palette |
+| Layouts+ | Tile layout uses rounded glass panels instead of hard boxes · optional centred clock for the round screen · 12/24-hour preview setting |
 | Install | Progress %, time left, **cancel at any moment** (watch keeps its current face) |
 | My faces | Save any face, reopen, customize, install, delete |
 

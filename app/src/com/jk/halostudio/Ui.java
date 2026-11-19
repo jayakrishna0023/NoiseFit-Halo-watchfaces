@@ -288,7 +288,7 @@ final class Ui {
 
     /** Live in-app animation over a face preview: particles chosen per art style + a sweeping seconds ring. */
     static final class LiveFx extends View {
-        static final int STARS = 0, BOKEH = 1, RAIN = 2, FIREFLY = 3, SHIMMER = 4, EMBERS = 5;
+        static final int STARS = 0, BOKEH = 1, RAIN = 2, FIREFLY = 3, SHIMMER = 4, EMBERS = 5, SCAN = 6;
         private final android.graphics.Paint p = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
         private final android.graphics.Path clip = new android.graphics.Path();
         private final java.util.Random r = new java.util.Random(7);
@@ -309,12 +309,13 @@ final class Ui {
                 case 27: case 18: return FIREFLY;
                 case 12: case 20: case 8: case 29: case 14: case 15: case 10: return SHIMMER;
                 case 11: case 2: case 28: return EMBERS;
+                case 30: case 31: case 32: return SCAN;
                 default: return STARS;
             }
         }
 
         @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
-            int n = mode == BOKEH ? 14 : mode == RAIN ? 26 : mode == FIREFLY ? 22 : mode == EMBERS ? 26 : mode == SHIMMER ? 0 : 46;
+            int n = mode == BOKEH ? 14 : mode == RAIN ? 26 : mode == FIREFLY ? 22 : mode == EMBERS ? 26 : mode == SHIMMER ? 0 : mode == SCAN ? 8 : 46;
             pt = new float[n][5];
             for (float[] q : pt) { q[0] = r.nextFloat() * w; q[1] = r.nextFloat() * h; q[2] = r.nextFloat() * 6.28f; q[3] = 0.4f + r.nextFloat(); q[4] = r.nextFloat(); }
             clip.reset();
@@ -382,6 +383,32 @@ final class Ui {
                         cv.drawCircle(x, y, R * 0.008f, p);
                     }
                     break;
+                case SCAN: {        // alien-tech HUD: radar sweep, energy surge rings, orbiting nodes
+                    float ang = (t * 70) % 360;
+                    p.setShader(new android.graphics.SweepGradient(cx, cy, new int[]{0x00000000 | rgb, 0x00000000 | rgb, 0x66000000 | rgb}, new float[]{0f, 0.82f, 1f}));
+                    cv.save(); cv.rotate(ang - 360, cx, cy);
+                    cv.drawCircle(cx, cy, R * 0.95f, p);
+                    cv.restore();
+                    p.setShader(null);
+                    float surge = (t % 3.2f) / 3.2f;                                   // pulse every 3.2 s
+                    p.setStyle(android.graphics.Paint.Style.STROKE);
+                    p.setStrokeWidth(R * 0.02f * (1 - surge) + 1);
+                    p.setColor(((int) ((1 - surge) * 200) << 24) | rgb);
+                    cv.drawCircle(cx, cy, R * (0.2f + surge * 0.8f), p);
+                    p.setStrokeWidth(R * 0.012f);
+                    p.setColor(0x88000000 | rgb);
+                    cv.drawArc(cx - R * 0.72f, cy - R * 0.72f, cx + R * 0.72f, cy + R * 0.72f, -t * 40, 70, false, p);
+                    cv.drawArc(cx - R * 0.72f, cy - R * 0.72f, cx + R * 0.72f, cy + R * 0.72f, 180 - t * 40, 70, false, p);
+                    p.setStyle(android.graphics.Paint.Style.FILL);
+                    for (int i = 0; i < pt.length; i++) {
+                        double a = Math.toRadians(t * (30 + i * 7) + i * 45);
+                        float rr = R * (0.45f + 0.06f * (i % 4));
+                        float a2 = 0.5f + 0.5f * (float) Math.sin(t * 3 + i);
+                        p.setColor(((int) (a2 * 220) << 24) | rgb);
+                        cv.drawCircle(cx + (float) Math.cos(a) * rr, cy + (float) Math.sin(a) * rr, R * 0.018f, p);
+                    }
+                    break;
+                }
                 default: { // SHIMMER: a soft light sweep every 4 s
                     float x0 = w * ((t % 4f) / 4f * 2.6f - 0.8f);
                     p.setShader(new android.graphics.LinearGradient(x0 - R * 0.4f, 0, x0 + R * 0.4f, h * 0.4f,

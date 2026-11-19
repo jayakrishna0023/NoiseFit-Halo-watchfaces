@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
     private static final String[] SURPRISE_FONTS = {"sans-serif-black", "sans-serif-condensed", "sans-serif-light", "sans-serif-medium",
             "serif", "monospace", "casual"};
     private static final int THUMB_PX = 400;
-    private static final String GALLERY_VER = "6";        // bump when the renderer changes
+    private static final String GALLERY_VER = "7";        // bump when the renderer changes
     private static final int[][] ART_PALETTES = palettes();
 
     private Ui ui;
@@ -509,7 +509,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
             Design d = Design.fromPreset(Presets.ALL[i]);
             boolean full = template(d.layout) != null;
             try {
-                String key = Integer.toHexString((d.toJson().toString() + GALLERY_VER + full).hashCode());
+                String key = Integer.toHexString((d.toJson().toString() + GALLERY_VER + full + prefs.getBoolean("centerClock", false)).hashCode());
                 File f = new File(galleryCache(), i + "_" + key + ".png");
                 Bitmap bm = f.exists() ? BitmapFactory.decodeFile(f.getPath()) : null;
                 if (bm == null) {
@@ -657,7 +657,10 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         if (d.timeGradient) chips.addView(ui.chip("Gradient"));
         if (d.outline > 0) chips.addView(ui.chip("Outline"));
         if (d.bgMode == 3) chips.addView(ui.chip(Art.NAMES[Math.max(0, Math.min(Art.NAMES.length - 1, d.artId))] + " art"));
-        c.addView(chips);
+        HorizontalScrollView chs = new HorizontalScrollView(this);
+        chs.setHorizontalScrollBarEnabled(false);
+        chs.addView(chips);
+        c.addView(chs, new LinearLayout.LayoutParams(-2, -2));
 
         detailInstall = ui.button(busy ? "✕  Cancel install" : "Install on watch", true, v -> install(detail, detailPhoto, false));
         
@@ -1341,6 +1344,15 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         c.addView(ui.text("Applies to faces installed from the Studio. Off = the watch keeps its own small picture in the face list.", 11, Ui.MUTED, false));
         root.addView(c);
 
+        LinearLayout wd = ui.card();
+        wd.addView(ui.title("Watch display"));
+        wd.addView(toggle("Centre the big clock on the round screen", prefs.getBoolean("centerClock", false), v -> {
+            prefs.edit().putBoolean("centerClock", v == 1).apply(); clearThumbs(); }));
+        wd.addView(ui.text("Moves hours + minutes down/left so the top digit isn't cut by the round edge. Experimental: install one face to check; if the watch shows its default face, use Restore galaxy face.", 11, Ui.MUTED, false));
+        wd.addView(toggle("My watch shows 24-hour time", watch24(), v -> { prefs.edit().putBoolean("watch24", v == 1).apply(); }));
+        wd.addView(ui.text("Previews use this so the clock in the app matches your wrist (the watch follows NoiseFit's time-format setting).", 11, Ui.MUTED, false));
+        root.addView(wd);
+
         aodCard = ui.card();
         fillAod();
         root.addView(aodCard);
@@ -1482,14 +1494,25 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         if (t == null) throw new IllegalStateException("template missing for " + d.layout);
         int[] bg = d.renderBackground(ph);
         Composer.GlyphPainter painter = d.customFont ? new Glyphs(d, fontsDir()) : null;
-        if (d.layout == Kind.GALAXY) return Composer.compose(Kind.GALAXY, t, bg, d.timeColor, d.dateColor, 0, d.dx, d.dy, painter);
+        if (d.layout == Kind.GALAXY) {
+            int dx = d.dx, dy = d.dy;
+            if (dx == 0 && dy == 0 && prefs.getBoolean("centerClock", false)) { dx = CENTER_DX; dy = CENTER_DY; }
+            return Composer.compose(Kind.GALAXY, t, bg, d.timeColor, d.dateColor, 0, dx, dy, painter);
+        }
         return Composer.compose(Kind.MOON, t, bg, d.timeColor, d.dateColor, d.tileColor, 0, 0, painter);
     }
+
+    private boolean watch24() { return prefs.getBoolean("watch24", DateFormat.is24HourFormat(this)); }
+
+    /** Galaxy shift that centres the time block (record x/y move; 94..400 x 51..302 -> 80..386 x 108..359). */
+    static final int CENTER_DX = -14, CENTER_DY = 57;
+
+    private void clearThumbs() { java.util.Arrays.fill(thumbs, null); }
 
     private int[] livePreview(Kind k, byte[] raw) {
         Calendar cal = Calendar.getInstance();
         int wd = (cal.get(Calendar.DAY_OF_WEEK) + 5) % 7;   // Monday = 0
-        return Composer.preview(k, raw, cal.get(Calendar.HOUR_OF_DAY), !DateFormat.is24HourFormat(this),
+        return Composer.preview(k, raw, cal.get(Calendar.HOUR_OF_DAY), !watch24(),
                 cal.get(Calendar.MINUTE), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), wd, false);
     }
 

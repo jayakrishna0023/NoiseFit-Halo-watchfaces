@@ -134,9 +134,13 @@ public final class Composer {
         El[] els = elements(kind);
         int[] bg = bgIn.clone();
         if (kind == Kind.MOON) {
-            for (El s : els)
-                for (int yy = 0; yy < s.h; yy++)
-                    for (int xx = 0; xx < s.w; xx++) bg[(s.y + yy) * W + s.x + xx] = tileColor | 0xFF000000;
+            // Shared glyph sets need an identical colour under every position they appear at. Instead of a hard
+            // box per element, draw two rounded "glass" panels (time block, date row) with a uniform core and a
+            // soft feathered rim, plus a faint highlight border — reads as a design element, not a glitch.
+            int tc = tileColor | 0xFF000000;
+            panel(bg, 30, 82, 194, 305, 20, tc);      // hour/minute block (glyphs 42..182 x 92..297)
+            panel(bg, 28, 309, 230, 353, 14, tc);     // date + weekday row (glyphs 38..220 x 316..346)
+            panel(bg, 118, 47, 184, 83, 10, tc);      // AM/PM pill (unique set, just for consistency)
         }
         byte[] raw = template.clone();
         for (int i = 0; i < W * H; i++) put565(raw, BG_OFF + 2 * i, bg[i]);
@@ -178,6 +182,22 @@ public final class Composer {
             }
         }
         return raw;
+    }
+
+    /** Rounded panel [x0,x1) x [y0,y1): uniform colour inside, 1.5 px light rim, 6 px soft shadow outside. */
+    static void panel(int[] bg, int x0, int y0, int x1, int y1, int rad, int col) {
+        int rim = 0xFFFFFFFF;
+        for (int y = Math.max(0, y0 - 8); y < Math.min(H, y1 + 8); y++)
+            for (int x = Math.max(0, x0 - 8); x < Math.min(W, x1 + 8); x++) {
+                float qx = Math.max(Math.max(x0 + rad - (x + 0.5f), (x + 0.5f) - (x1 - rad)), 0);
+                float qy = Math.max(Math.max(y0 + rad - (y + 0.5f), (y + 0.5f) - (y1 - rad)), 0);
+                float d = (float) Math.hypot(qx, qy) - rad;          // <0 inside the rounded rect
+                int i = y * W + x;
+                if (d <= -1.5f) bg[i] = col;
+                else if (d <= 0f) bg[i] = blend(rim, 0.22f, col);
+                else if (d < 1f) bg[i] = blend(blend(rim, 0.22f, col), 1 - d, bg[i]);
+                else if (d < 8f) bg[i] = blend(0xFF000000, 0.35f * (1 - d / 8f), bg[i]);
+            }
     }
 
     /** Writes the 310x310 face-picker preview (ARGB, should be round-masked with black outside). */
