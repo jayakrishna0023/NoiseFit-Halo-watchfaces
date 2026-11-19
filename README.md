@@ -27,6 +27,7 @@ over Bluetooth, without the official app's paid customisation.
 | Live previews | Animated in-app previews: twinkling & shooting stars, bokeh, code rain, fireflies, embers, shimmer, live seconds ring, 3D tilt; animated logo & launch screen |
 | Editing | Hue shift, frames (thin / neon / minute ticks / double ring), textures (grain, scanlines, glass sheen, dot grid), random harmonious palettes, reverse/darken palette |
 | Layouts+ | Tile layout uses rounded glass panels instead of hard boxes · optional centred clock for the round screen · 12/24-hour preview setting |
+| Look & feel | Bright beige theme (dark theme in Settings) · responsive layout: 2/3/4-column grids by screen width, previews sized to the screen height, centred column on tablets/foldables |
 | Install | Progress %, time left, **cancel at any moment** (watch keeps its current face) |
 | My faces | Save any face, reopen, customize, install, delete |
 

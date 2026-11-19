@@ -152,6 +152,9 @@ public class MainActivity extends Activity implements WatchLink.Listener {
     // ------------------------------------------------------------------ lifecycle
     @Override
     protected void onCreate(Bundle b) {
+        boolean light = getSharedPreferences("halo", MODE_PRIVATE).getBoolean("lightTheme", true);
+        Ui.applyTheme(light);
+        setTheme(light ? android.R.style.Theme_Material_Light_NoActionBar : android.R.style.Theme_Material_NoActionBar);
         super.onCreate(b);
         ui = new Ui(this);
         for (int i = 0; i < thumbLocks.length; i++) thumbLocks[i] = new Object();
@@ -160,6 +163,10 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         Window w = getWindow();
         w.setStatusBarColor(Ui.BG);
         w.setNavigationBarColor(Ui.CARD);
+        if (w.getInsetsController() != null) {
+            int lightBars = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            w.getInsetsController().setSystemBarsAppearance(Ui.LIGHT ? lightBars : 0, lightBars);
+        }
         main = new Handler(Looper.getMainLooper());
         HandlerThread rt = new HandlerThread("render"); rt.start(); render = new Handler(rt.getLooper());
         HandlerThread bt = new HandlerThread("ble"); bt.start(); ble = new Handler(bt.getLooper());
@@ -186,7 +193,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         bar.setVisibility(View.GONE);
         LinearLayout barRow = ui.row();
         barRow.addView(bar, new LinearLayout.LayoutParams(0, ui.dp(6), 1));
-        cancelBtn = ui.text("✕ Cancel", 13, 0xFFFF6B6B, true);
+        cancelBtn = ui.text("✕ Cancel", 13, Ui.BAD, true);
         cancelBtn.setPadding(ui.dp(12), ui.dp(6), ui.dp(4), ui.dp(6));
         cancelBtn.setVisibility(View.GONE);
         cancelBtn.setOnClickListener(v -> cancelInstall());
@@ -222,7 +229,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         Ui.Logo logo = new Ui.Logo(this);
         col.addView(logo, new LinearLayout.LayoutParams(ui.dp(120), ui.dp(120)));
         TextView nm = ui.text("Lumina", 34, Ui.TEXT, true);
-        Ui.gradientText(nm, 0xFFFFFFFF, 0xFFC4B5FD, Ui.ACCENT2);
+        Ui.gradientText(nm, Ui.HEAD_A, Ui.HEAD_B, Ui.ACCENT2);
         nm.setPadding(0, ui.dp(16), 0, 0);
         col.addView(nm);
         TextView tag = ui.text("living watch faces for your Halo", 13, Ui.MUTED, false);
@@ -263,7 +270,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         g.setColor(Ui.CARD);
         float r = ui.dp(22);
         g.setCornerRadii(new float[]{r, r, r, r, 0, 0, 0, 0});
-        n.setBackground(g);
+        n.setBackground(g); n.setElevation(ui.dp(Ui.LIGHT ? 10 : 0));
         n.setPadding(0, ui.dp(9), 0, ui.dp(9));
         for (int i = 0; i < NAV.length; i++) {
             final int idx = i;
@@ -301,12 +308,30 @@ public class MainActivity extends Activity implements WatchLink.Listener {
             default: v = buildWatch();
         }
         screenView = v;
-        stage.addView(v, 0, new FrameLayout.LayoutParams(-1, -1));
+        stage.addView(v, 0, new FrameLayout.LayoutParams(Math.min(screenW(), contentW()), -1, Gravity.CENTER_HORIZONTAL));
         if (!same) Ui.fadeIn(v, 0);
         if (s == 1) refresh();
     }
 
     private int screenW() { return getResources().getDisplayMetrics().widthPixels; }
+    private int screenH() { return getResources().getDisplayMetrics().heightPixels; }
+
+    /** Width available to screen content (capped so tablets/foldables get a centred column). */
+    private int contentW() { return Math.min(screenW(), ui.dp(MAX_CONTENT_DP)); }
+    private static final int MAX_CONTENT_DP = 720;
+
+    /** Grid columns by width: 2 on phones, 3 on large phones/foldables, 4 on tablets. */
+    private int cols() {
+        float wdp = contentW() / getResources().getDisplayMetrics().density;
+        return wdp >= 680 ? 4 : wdp >= 520 ? 3 : 2;
+    }
+
+    private GradientDrawable heroBg(float r) {
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{Ui.HERO_A, Ui.HERO_B, Ui.HERO_C});
+        g.setCornerRadius(ui.dp(r));
+        if (Ui.LIGHT) g.setStroke(Math.max(1, ui.dp(0.8f)), Ui.LINE);
+        return g;
+    }
 
     private static String layoutName(Kind k) { return k == Kind.GALAXY ? "Big clock" : "Tiles + AM/PM"; }
 
@@ -319,7 +344,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
 
     private TextView heading(String title) {
         TextView t = ui.text(title, 28, Ui.TEXT, true);
-        Ui.gradientText(t, 0xFFFFFFFF, 0xFFC4B5FD, Ui.ACCENT2);
+        Ui.gradientText(t, Ui.HEAD_A, Ui.HEAD_B, Ui.ACCENT2);
         return t;
     }
 
@@ -370,7 +395,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         fillGrid();
 
         LinearLayout own = ui.card();
-        own.setBackground(ui.gradient(0xFF2A1B4D, 0xFF0F2A33, 22));
+        own.setBackground(heroBg(22)); ui.lift(own);
         LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(-1, -2);
         olp.topMargin = ui.dp(10);
         own.setLayoutParams(olp);
@@ -391,12 +416,11 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         final int idx = Calendar.getInstance().get(Calendar.DAY_OF_YEAR) % Presets.ALL.length;
         Presets.Spec s = Presets.ALL[idx];
         FrameLayout card = new FrameLayout(this);
-        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xFF2A1B4D, 0xFF141A30, 0xFF0B2A33});
-        bg.setCornerRadius(ui.dp(26));
-        card.setBackground(bg);
+        card.setBackground(heroBg(26));
+        ui.lift(card);
         LinearLayout r = ui.row();
         r.setPadding(ui.dp(14), ui.dp(16), ui.dp(16), ui.dp(16));
-        int sz = ui.dp(140);
+        int sz = Math.max(ui.dp(96), Math.min(ui.dp(150), (int) (contentW() * 0.36f)));
         FrameLayout art = new FrameLayout(this);
         art.addView(new Ui.Ring(this, ui.dp(2.5f)), new FrameLayout.LayoutParams(sz, sz, Gravity.CENTER));
         ImageView iv = new ImageView(this);
@@ -409,7 +433,10 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         TextView k = ui.text("FACE OF THE DAY", 11, Ui.ACCENT2, true);
         k.setLetterSpacing(0.14f);
         tx.addView(k);
-        tx.addView(ui.text(s.name, 22, Ui.TEXT, true));
+        TextView heroName = ui.text(s.name, 22, Ui.TEXT, true);
+        heroName.setMaxLines(2);
+        heroName.setEllipsize(TextUtils.TruncateAt.END);
+        tx.addView(heroName);
         tx.addView(ui.text(s.category + " · " + layoutName(s.layout), 12, Ui.MUTED, false));
         TextView open = ui.pill("View  →", true, v -> openPreset(idx));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
@@ -444,26 +471,27 @@ public class MainActivity extends Activity implements WatchLink.Listener {
                 String hay = (ps.name + " " + ps.category + " " + Art.NAMES[ps.art]).toLowerCase(Locale.ROOT);
                 if (!hay.contains(query)) continue;
             }
-            if (n % 2 == 0) { row = ui.row(); row.setGravity(Gravity.TOP); gridBox.addView(row, new LinearLayout.LayoutParams(-1, -2)); }
+            if (n % cols() == 0) { row = ui.row(); row.setGravity(Gravity.TOP); gridBox.addView(row, new LinearLayout.LayoutParams(-1, -2)); }
             View card = faceCard(i);
             row.addView(card, gridLp(n));
             Ui.fadeIn(card, Math.min(n, 10) * 35L);
             n++;
         }
-        if (n % 2 == 1) row.addView(new View(this), gridLp(n));
+        for (int k = n; row != null && k % cols() != 0; k++) row.addView(new View(this), gridLp(k));
         if (n == 0) gridBox.addView(ui.text("No faces match “" + query + "”. Try 🎲 Surprise!", 13, Ui.MUTED, false));
     }
 
     private LinearLayout.LayoutParams gridLp(int n) {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, -2, 1);
-        lp.setMargins(n % 2 == 0 ? 0 : ui.dp(6), ui.dp(6), n % 2 == 0 ? ui.dp(6) : 0, ui.dp(6));
+        int c = cols(), col = n % c;
+        lp.setMargins(col == 0 ? 0 : ui.dp(5), ui.dp(6), col == c - 1 ? 0 : ui.dp(5), ui.dp(6));
         return lp;
     }
 
     private View faceCard(int i) {
         Presets.Spec s = Presets.ALL[i];
         LinearLayout c = ui.col();
-        c.setBackground(ui.rounded(Ui.CARD, 22));
+        c.setBackground(ui.surface(22)); ui.lift(c);
         c.setPadding(ui.dp(10), ui.dp(12), ui.dp(10), ui.dp(12));
         Ui.Square iv = new Ui.Square(this);
         c.addView(iv, new LinearLayout.LayoutParams(-1, -2));
@@ -615,7 +643,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         }
         c.addView(top, new LinearLayout.LayoutParams(-1, -2));
 
-        int sz = Math.min(screenW() - ui.dp(36), ui.dp(330));
+        int sz = Math.min(Math.min(contentW() - ui.dp(36), ui.dp(380)), (int) (screenH() * 0.46f));
         FrameLayout st = new FrameLayout(this);
         View glow = new View(this);
         GradientDrawable gd = new GradientDrawable();
@@ -802,12 +830,12 @@ public class MainActivity extends Activity implements WatchLink.Listener {
             grid.setPadding(0, ui.dp(10), 0, 0);
             LinearLayout row = null;
             for (int i = 0; i < n; i++) {
-                if (i % 2 == 0) { row = ui.row(); row.setGravity(Gravity.TOP); grid.addView(row, new LinearLayout.LayoutParams(-1, -2)); }
+                if (i % cols() == 0) { row = ui.row(); row.setGravity(Gravity.TOP); grid.addView(row, new LinearLayout.LayoutParams(-1, -2)); }
                 View card = savedCard(all[i]);
                 row.addView(card, gridLp(i));
                 Ui.fadeIn(card, Math.min(i, 10) * 35L);
             }
-            if (n % 2 == 1) row.addView(new View(this), gridLp(n));
+            for (int k = n; row != null && k % cols() != 0; k++) row.addView(new View(this), gridLp(k));
             c.addView(grid);
         }
         sv.addView(c);
@@ -819,7 +847,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         try { name = new JSONObject(new String(Files.readAllBytes(new File(dir, "design.json").toPath()), StandardCharsets.UTF_8)).optString("name", name); }
         catch (Exception ignored) { }
         LinearLayout c = ui.col();
-        c.setBackground(ui.rounded(Ui.CARD, 22));
+        c.setBackground(ui.surface(22)); ui.lift(c);
         c.setPadding(ui.dp(10), ui.dp(12), ui.dp(10), ui.dp(12));
         Ui.Square iv = new Ui.Square(this);
         c.addView(iv, new LinearLayout.LayoutParams(-1, -2));
@@ -871,12 +899,12 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         root.addView(head);
 
         FrameLayout pv = new FrameLayout(this);
-        int size = Math.min(screenW() - ui.dp(36), ui.dp(236));
+        int size = Math.max(ui.dp(150), Math.min(Math.min(contentW() - ui.dp(36), ui.dp(300)), (int) (screenH() * 0.27f)));
         View halo = new View(this);
         GradientDrawable hd = new GradientDrawable();
         hd.setShape(GradientDrawable.OVAL);
         hd.setColor(0x00000000);
-        hd.setStroke(ui.dp(2), 0x668B5CF6);
+        hd.setStroke(ui.dp(2), (Ui.ACCENT1 & 0x00FFFFFF) | 0x77000000);
         halo.setBackground(hd);
         pv.addView(halo, new FrameLayout.LayoutParams(size + ui.dp(12), size + ui.dp(12), Gravity.CENTER));
         preview = new ImageView(this);
@@ -1026,6 +1054,8 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         s.setText(label);
         s.setTextColor(Ui.TEXT);
         s.setChecked(on);
+        s.setThumbTintList(new android.content.res.ColorStateList(new int[][]{{android.R.attr.state_checked}, {}}, new int[]{Ui.ACCENT1, Ui.CARD}));
+        s.setTrackTintList(new android.content.res.ColorStateList(new int[][]{{android.R.attr.state_checked}, {}}, new int[]{(Ui.ACCENT1 & 0x00FFFFFF) | 0x88000000, Ui.MUTED}));
         s.setPadding(0, ui.dp(6), 0, ui.dp(6));
         s.setOnCheckedChangeListener((x, v) -> cb.on(v ? 1 : 0));
         return s;
@@ -1315,7 +1345,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(-1, -2);
         wlp.setMargins(0, ui.dp(16), 0, ui.dp(12));
         wr.setLayoutParams(wlp);
-        wr.setBackground(ui.gradient(0xFF2A1B4D, 0xFF0F2A33, 22));
+        wr.setBackground(heroBg(22)); ui.lift(wr);
         LinearLayout row = ui.row();
         ImageView iv = new ImageView(this);
         File wf = new File(getFilesDir(), "wrist.png");
@@ -1359,6 +1389,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
 
         LinearLayout s = ui.card();
         s.addView(ui.title("Settings"));
+        s.addView(toggle("Bright beige theme (off = dark)", Ui.LIGHT, v -> { prefs.edit().putBoolean("lightTheme", v == 1).apply(); recreate(); }));
         s.addView(ui.text("NoiseFit user ID (sent like NoiseFit does on every connect)", 12, Ui.MUTED, false));
         EditText tok = field(prefs.getString("token", ""), "e.g. 0a1b2c3d4e5f…");
         tok.addTextChangedListener(saver("token"));

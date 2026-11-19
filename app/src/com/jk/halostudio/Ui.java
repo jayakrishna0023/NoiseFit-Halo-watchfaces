@@ -13,8 +13,26 @@ import android.widget.TextView;
 
 /** Small dark-theme UI kit (no XML). */
 final class Ui {
-    static final int BG = 0xFF0B0C12, CARD = 0xFF161822, CARD2 = 0xFF1F2230, TEXT = 0xFFF3F4F8, MUTED = 0xFF9097AD;
-    static final int ACCENT1 = 0xFF8B5CF6, ACCENT2 = 0xFF22D3EE, GOOD = 0xFF34D399, WARN = 0xFFFBBF24;
+    // Theme colours (set by applyTheme before any view is built)
+    static int BG, CARD, CARD2, TEXT, MUTED, ACCENT1, ACCENT2, GOOD, WARN, BAD, LINE, HERO_A, HERO_B, HERO_C, HEAD_A, HEAD_B;
+    static boolean LIGHT;
+    static { applyTheme(true); }
+
+    /** true = bright beige theme (default), false = original dark theme. */
+    static void applyTheme(boolean light) {
+        LIGHT = light;
+        if (light) {
+            BG = 0xFFF5EEE3; CARD = 0xFFFFFBF5; CARD2 = 0xFFEEE4D5; TEXT = 0xFF2B221C; MUTED = 0xFF7C6D60;
+            ACCENT1 = 0xFFE0703F; ACCENT2 = 0xFF2A9D8F; GOOD = 0xFF2F855A; WARN = 0xFFB7791F; BAD = 0xFFD64545;
+            LINE = 0x1F3B2A1E; HERO_A = 0xFFFCE3CF; HERO_B = 0xFFF8EBD8; HERO_C = 0xFFDDEFE9;
+            HEAD_A = 0xFF2B221C; HEAD_B = 0xFFC2562A;
+        } else {
+            BG = 0xFF0B0C12; CARD = 0xFF161822; CARD2 = 0xFF1F2230; TEXT = 0xFFF3F4F8; MUTED = 0xFF9097AD;
+            ACCENT1 = 0xFF8B5CF6; ACCENT2 = 0xFF22D3EE; GOOD = 0xFF34D399; WARN = 0xFFFBBF24; BAD = 0xFFFF6B6B;
+            LINE = 0x33FFFFFF; HERO_A = 0xFF2A1B4D; HERO_B = 0xFF141A30; HERO_C = 0xFF0B2A33;
+            HEAD_A = 0xFFFFFFFF; HEAD_B = 0xFFC4B5FD;
+        }
+    }
 
     static final int[] PALETTE = {0xFFFFFFFF, 0xFFFFC542, 0xFFFF7A59, 0xFFFF4D8D, 0xFFC084FC, 0xFF60A5FA,
             0xFF22D3EE, 0xFF34D399, 0xFFA3E635, 0xFFFDE68A, 0xFF94A3B8, 0xFF111111};
@@ -35,6 +53,15 @@ final class Ui {
         return g;
     }
 
+    /** Card surface: CARD fill with a hairline border (bright theme) and a soft shadow. */
+    GradientDrawable surface(float r) {
+        GradientDrawable g = rounded(CARD, r);
+        if (LIGHT) g.setStroke(Math.max(1, dp(0.8f)), LINE);
+        return g;
+    }
+
+    void lift(View v) { if (LIGHT) { v.setElevation(dp(3)); v.setOutlineAmbientShadowColor(0x55B08A60); v.setOutlineSpotShadowColor(0x55B08A60); } }
+
     GradientDrawable gradient(int a, int b, float r) {
         GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{a, b});
         g.setCornerRadius(dp(r));
@@ -46,7 +73,7 @@ final class Ui {
 
     LinearLayout card() {
         LinearLayout l = col();
-        l.setBackground(rounded(CARD, 20));
+        l.setBackground(surface(20));
         l.setPadding(dp(16), dp(14), dp(16), dp(16));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
         lp.bottomMargin = dp(12);
@@ -83,6 +110,7 @@ final class Ui {
         TextView p = text(s, 14, selected ? Color.WHITE : MUTED, true);
         p.setPadding(dp(16), dp(9), dp(16), dp(9));
         p.setBackground(selected ? gradient(ACCENT1, ACCENT2, 30) : rounded(CARD2, 30));
+        p.setSingleLine(true);
         p.setOnClickListener(l);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-2, -2);
         lp.rightMargin = dp(8);
@@ -101,6 +129,9 @@ final class Ui {
         r.addView(v);
         SeekBar sb = new SeekBar(c);
         sb.setMin(min); sb.setMax(max); sb.setProgress(value);
+        sb.setProgressTintList(android.content.res.ColorStateList.valueOf(ACCENT1));
+        sb.setThumbTintList(android.content.res.ColorStateList.valueOf(ACCENT1));
+        sb.setProgressBackgroundTintList(android.content.res.ColorStateList.valueOf(MUTED));
         sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar s, int p, boolean u) { v.setText(String.valueOf(p)); if (u) cb.on(p); }
             @Override public void onStartTrackingTouch(SeekBar s) {}
@@ -121,7 +152,7 @@ final class Ui {
             GradientDrawable g = new GradientDrawable();
             g.setShape(GradientDrawable.OVAL);
             g.setColor(col);
-            g.setStroke(dp(col == selected ? 3 : 1), col == selected ? ACCENT2 : 0x33FFFFFF);
+            g.setStroke(dp(col == selected ? 3 : 1), col == selected ? ACCENT1 : LINE);
             s.setBackground(g);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(34), dp(34));
             lp.rightMargin = dp(10);
