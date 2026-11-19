@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
     private static final String[] SURPRISE_FONTS = {"sans-serif-black", "sans-serif-condensed", "sans-serif-light", "sans-serif-medium",
             "serif", "monospace", "casual"};
     private static final int THUMB_PX = 400;
-    private static final String GALLERY_VER = "8";        // bump when the renderer changes
+    private static final String GALLERY_VER = "9";        // bump when the renderer changes
     private static final int[][] ART_PALETTES = palettes();
 
     private Ui ui;
@@ -705,7 +705,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         detailPx = Math.min(900, sz - ui.dp(48));
         st.addView(detailView, new FrameLayout.LayoutParams(sz - ui.dp(48), sz - ui.dp(48), Gravity.CENTER));
         if (prefs.getBoolean("liveFx", true))
-            st.addView(new Ui.LiveFx(this, d.bgMode == 3 ? d.artId : 13, d.glow > 0 ? d.glowColor : d.timeColor, true),
+            st.addView(new Ui.LiveFx(this, d.bgMode == 3 ? d.artId : 13, d.hideClock && d.artPal.length > 0 ? d.artPal[d.artPal.length - 1] : d.glow > 0 ? d.glowColor : d.timeColor, true),
                     new FrameLayout.LayoutParams(sz - ui.dp(48), sz - ui.dp(48), Gravity.CENTER));
         st.setCameraDistance(ui.dp(1600));
         tilt(st, st);
@@ -1239,6 +1239,13 @@ public class MainActivity extends Activity implements WatchLink.Listener {
     }
 
     private void panelClock() {
+        if (design.layout == Kind.GALAXY) {
+            LinearLayout h = ui.card();
+            h.addView(ui.title("Art-only face"));
+            h.addView(toggle("Hide time & date (show only the artwork)", design.hideClock, v -> { design.hideClock = v == 1; changed(); }));
+            h.addView(ui.text("The watch still keeps time — raise your wrist and swipe to see it in the menus. Galaxy layout only.", 11, Ui.MUTED, false));
+            panel.addView(h);
+        }
         LinearLayout c = ui.card();
         c.addView(ui.title("Time colour"));
         c.addView(ui.swatches(Ui.PALETTE, design.timeColor, col -> { design.timeColor = col; changed(); buildPanel(); }));
@@ -1570,7 +1577,9 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         byte[] t = template(d.layout);
         if (t == null) throw new IllegalStateException("template missing for " + d.layout);
         int[] bg = d.renderBackground(ph);
-        Composer.GlyphPainter painter = d.customFont ? new Glyphs(d, fontsDir()) : null;
+        Composer.GlyphPainter painter = d.hideClock && d.layout == Kind.GALAXY
+                ? (role, idx, w, h) -> new int[w * h]          // fully transparent: digits/labels vanish into the art
+                : d.customFont ? new Glyphs(d, fontsDir()) : null;
         if (d.layout == Kind.GALAXY) {
             int dx = d.dx, dy = d.dy;
             if (dx == 0 && dy == 0 && prefs.getBoolean("centerClock", false)) { dx = CENTER_DX; dy = CENTER_DY; }

@@ -45,6 +45,7 @@ final class Design {
     boolean mono = false;
     int hue = 0;                          // hue shift in degrees
     int frame = 0, frameColor = 0xFF22D3EE; // 0 none, 1 thin ring, 2 neon ring, 3 minute ticks, 4 double ring
+    boolean hideClock = false;            // art-only face: every digit/label image becomes the background
     int overlay = 0;                      // 0 none, 1 film grain, 2 scanlines, 3 glass sheen, 4 dot grid
     // text
     String text = "";
@@ -75,7 +76,7 @@ final class Design {
         o.put("layout", layout.name()); o.put("bgMode", bgMode); o.put("zoom", zoom); o.put("panX", panX); o.put("panY", panY); o.put("rotate", rotate);
         o.put("grad1", grad1); o.put("grad2", grad2); o.put("gradAngle", gradAngle); o.put("solid", solid);
         o.put("brightness", brightness); o.put("contrast", contrast); o.put("saturation", saturation);
-        o.put("blur", blur); o.put("vignette", vignette); o.put("mono", mono); o.put("hue", hue); o.put("frame", frame); o.put("frameColor", frameColor); o.put("overlay", overlay);
+        o.put("blur", blur); o.put("vignette", vignette); o.put("mono", mono); o.put("hue", hue); o.put("frame", frame); o.put("frameColor", frameColor); o.put("overlay", overlay); o.put("hideClock", hideClock);
         o.put("text", text); o.put("textSize", textSize); o.put("textX", textX); o.put("textY", textY); o.put("textColor", textColor); o.put("textBold", textBold);
         JSONArray st = new JSONArray(); for (Sticker s : stickers) st.put(s.json()); o.put("stickers", st);
         o.put("timeColor", timeColor); o.put("timeColor2", timeColor2); o.put("timeGradient", timeGradient);
@@ -97,7 +98,7 @@ final class Design {
         d.rotate = o.optInt("rotate", 0);
         d.grad1 = o.optInt("grad1", d.grad1); d.grad2 = o.optInt("grad2", d.grad2); d.gradAngle = o.optInt("gradAngle", 45); d.solid = o.optInt("solid", d.solid);
         d.brightness = o.optInt("brightness", 0); d.contrast = o.optInt("contrast", 100); d.saturation = o.optInt("saturation", 100);
-        d.blur = o.optInt("blur", 0); d.vignette = o.optInt("vignette", 0); d.mono = o.optBoolean("mono", false); d.hue = o.optInt("hue", 0); d.frame = o.optInt("frame", 0); d.frameColor = o.optInt("frameColor", 0xFF22D3EE); d.overlay = o.optInt("overlay", 0);
+        d.blur = o.optInt("blur", 0); d.vignette = o.optInt("vignette", 0); d.mono = o.optBoolean("mono", false); d.hue = o.optInt("hue", 0); d.frame = o.optInt("frame", 0); d.frameColor = o.optInt("frameColor", 0xFF22D3EE); d.overlay = o.optInt("overlay", 0); d.hideClock = o.optBoolean("hideClock", false);
         d.text = o.optString("text", ""); d.textSize = o.optInt("textSize", 34); d.textX = o.optInt("textX", 233); d.textY = o.optInt("textY", 400);
         d.textColor = o.optInt("textColor", 0xFFFFFFFF); d.textBold = o.optBoolean("textBold", true);
         JSONArray st = o.optJSONArray("stickers");
@@ -121,7 +122,7 @@ final class Design {
         d.name = s.name; d.layout = s.layout; d.bgMode = 3; d.artId = s.art; d.artPal = s.pal.clone(); d.artSeed = s.seed;
         d.customFont = true; d.fontFamily = s.font; d.fontFile = ""; d.fontBold = s.bold; d.fontItalic = s.italic; d.upperLabels = s.upper;
         d.timeColor = s.time; d.timeColor2 = s.time2; d.timeGradient = s.grad; d.dateColor = s.date; d.tileColor = s.tile;
-        d.glow = s.glow; d.glowColor = s.glowColor; d.outline = s.outline; d.outlineColor = 0xFF000000; d.dx = s.dx; d.dy = s.dy; d.frame = s.frame; d.frameColor = s.frameColor; d.overlay = s.overlay;
+        d.glow = s.glow; d.glowColor = s.glowColor; d.outline = s.outline; d.outlineColor = 0xFF000000; d.dx = s.dx; d.dy = s.dy; d.frame = s.frame; d.frameColor = s.frameColor; d.overlay = s.overlay; d.hideClock = s.hideClock;
         return d;
     }
 

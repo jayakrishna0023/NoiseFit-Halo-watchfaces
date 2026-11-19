@@ -2,7 +2,7 @@ package com.jk.halostudio.core;
 
 /** Preinstalled faces: original procedural art + clock styling (no third-party artwork). */
 public final class Presets {
-    public static final String[] CATEGORIES = {"All", "Alien Tech", "Cosmic", "Space", "Nature", "Luxury", "Cyber", "Neon", "Abstract", "Minimal", "Retro"};
+    public static final String[] CATEGORIES = {"All", "Alien Tech", "Pro", "Cosmic", "Space", "Nature", "Luxury", "Cyber", "Neon", "Abstract", "Minimal", "Retro"};
 
     public static final class Spec {
         public final String name, category, font;
@@ -12,6 +12,8 @@ public final class Presets {
         public final boolean grad, bold, italic, upper;
         public final int dx, dy;
         public int frame, frameColor, overlay;
+        public boolean hideClock;
+        Spec noClock() { this.hideClock = true; return this; }
         Spec fx(int frame, int frameColor, int overlay) { this.frame = frame; this.frameColor = frameColor; this.overlay = overlay; return this; }
         Spec(String name, String category, int art, int[] pal, long seed, Composer.Kind layout, String font, boolean bold, boolean italic,
              int time, int time2, boolean grad, int date, int tile, int glow, int glowColor, int outline, boolean upper, int dx, int dy) {
@@ -214,6 +216,17 @@ public final class Presets {
                     0xFF4ADE80, 0xFF4ADE80, true, 0xFFBBF7D0, 0xFF06110A, 8, 0xFF22C55E, 0, true, 0, 0),
             new Spec("DNA Tiles", "Alien Tech", 34, new int[]{0xFF06020C, 0xFF4C1D95, 0xFFF472B6, 0xFF67E8F9}, 17, M, "monospace", false, false,
                     0xFF67E8F9, 0xFF67E8F9, true, 0xFFF5D0FE, 0xFF0C0618, 8, 0xFFA855F7, 0, true, 0, 0),
+            // ---- v10: art-only (no clock) + Pro
+            g("Gauntlet Core · art only", "Alien Tech", 33, new int[]{0xFF040804, 0xFF1A2E1A, 0xFF16A34A, 0xFF4ADE80}, 21, "sans-serif-black", 0xFFFFFFFF, 0xFFFFFFFF, 0).noClock(),
+            g("Omega Core · art only", "Alien Tech", 33, new int[]{0xFF030303, 0xFF262626, 0xFF65A30D, 0xFFBEF264}, 23, "sans-serif-black", 0xFFFFFFFF, 0xFFFFFFFF, 0).noClock(),
+            g("Burst Core · art only", "Alien Tech", 35, new int[]{0xFF010401, 0xFF14532D, 0xFF22C55E, 0xFFECFCCB}, 25, "sans-serif-black", 0xFFFFFFFF, 0xFFFFFFFF, 0).noClock(),
+            g("Xeno Core · art only", "Alien Tech", 30, new int[]{0xFF050805, 0xFF1F2A1F, 0xFF4ADE80, 0xFFA3E635}, 27, "sans-serif-black", 0xFFFFFFFF, 0xFFFFFFFF, 0).noClock(),
+            g("Pro Gradient", "Pro", 6, new int[]{0xFF1E1B4B, 0xFF7C3AED, 0xFFEC4899, 0xFFF59E0B}, 41, "sans-serif-light", 0xFFFFFFFF, 0xFFFFFFFF, 0).fx(3, 0xCCFFFFFF, 0),
+            g("Pro Graphite", "Pro", 15, new int[]{0xFF111214, 0xFFF97316}, 9, "sans-serif-condensed", 0xFFFFFFFF, 0xFFF97316, 0).fx(3, 0xFF6B7280, 1),
+            g("Pro Sunrise", "Pro", 6, new int[]{0xFFFB7185, 0xFFF59E0B, 0xFFFDE68A, 0xFFF97316}, 43, "sans-serif-medium", 0xFFFFFFFF, 0xFFFFFFFF, 0).fx(1, 0xAAFFFFFF, 3),
+            g("Pro Ocean", "Pro", 6, new int[]{0xFF020617, 0xFF0C4A6E, 0xFF1D4ED8, 0xFF0E7490}, 45, "sans-serif-light", 0xFFFFFFFF, 0xFFBAE6FD, 4).fx(4, 0xFF7DD3FC, 0),
+            g("Pro Chrono Black", "Pro", 6, new int[]{0xFF050505, 0xFF18181B, 0xFF27272A, 0xFF0A0A0A}, 47, "sans-serif-condensed", 0xFFFFFFFF, 0xFFEF4444, 0).fx(3, 0xFFEF4444, 0),
+            g("Pro Mint", "Pro", 22, new int[]{0xFF052E2B, 0xFF14B8A6, 0xFF99F6E4, 0xFFF0FDFA}, 49, "sans-serif-light", 0xFFFFFFFF, 0xFFFFFFFF, 6).fx(1, 0x99FFFFFF, 3),
     };
 
     private Presets() {}

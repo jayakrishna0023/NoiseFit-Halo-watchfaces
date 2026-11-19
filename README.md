@@ -13,7 +13,7 @@ over Bluetooth, without the official app's paid customisation.
 ## Features
 | Area | What you can do |
 |---|---|
-| Gallery | **117 preinstalled faces** in 10 categories (Alien Tech, Cosmic, Space, Nature, Luxury, Cyber, Neon, Abstract, Minimal, Retro), search, face of the day, **🎲 Surprise** (random readable face), animated detail view with live time |
+| Gallery | **127 preinstalled faces** in 11 categories (Alien Tech, Pro, Cosmic, Space, Nature, Luxury, Cyber, Neon, Abstract, Minimal, Retro), search, face of the day, **🎲 Surprise** (random readable face), animated detail view with live time |
 | Generative art | **36 procedural art styles** (nebula, aurora, dunes, synthwave, planet, bokeh, mesh, topography, low-poly, waves, rings, sunburst, marble, starfield, halftone, minimal, black hole, liquid chrome, flow field, mountains, crystal, neon tunnel, glass, spiral galaxy, circuit, kaleidoscope, code rain, fireflies, sunset sea, Bauhaus, xeno core, HUD scanner, plasma reactor, gauntlet, DNA scan, energy burst) × palettes × seeds — all original, generated on the phone |
 | Layouts | **Galaxy** (big clock, movable) · **Moon** (stacked clock + AM/PM on tiles) — from your own captured faces |
 | Background | Generative art · photo with **interactive crop** (drag, pinch, rotate) · 10 gradients + custom · solid colour |
@@ -28,6 +28,7 @@ over Bluetooth, without the official app's paid customisation.
 | Editing | Hue shift, frames (thin / neon / minute ticks / double ring), textures (grain, scanlines, glass sheen, dot grid), random harmonious palettes, reverse/darken palette |
 | Layouts+ | Tile layout uses rounded glass panels instead of hard boxes · optional centred clock for the round screen · 12/24-hour preview setting |
 | Look & feel | Bright beige theme (dark theme in Settings) · responsive layout: 2/3/4-column grids by screen width, previews sized to the screen height, centred column on tablets/foldables |
+| Art-only faces | Hide time & date to show just the artwork (Galaxy layout) |
 | Install | Progress %, time left, **cancel at any moment** (watch keeps its current face) |
 | My faces | Save any face, reopen, customize, install, delete |
 

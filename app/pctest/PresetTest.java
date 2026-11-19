@@ -38,7 +38,7 @@ public class PresetTest {
             Presets.Spec s = Presets.ALL[i];
             int[] bg = Art.render(s.art, s.pal, s.seed);
             byte[] tpl = s.layout == Kind.GALAXY ? gal : moon;
-            byte[] raw = Composer.compose(s.layout, tpl, bg, s.time, s.date, s.tile, s.dx, s.dy, painter(s));
+            byte[] raw = Composer.compose(s.layout, tpl, bg, s.time, s.date, s.tile, s.dx, s.dy, s.hideClock ? (r, ix, w, h) -> new int[w * h] : painter(s));
             if (Composer.verifyAllowed(s.layout, tpl, raw, false) == null && Arrays.equals(ZhDial.unpack(ZhDial.pack(raw)), raw)) ok++;
             int[] pv = Composer.preview(s.layout, raw, 10, s.layout == Kind.MOON, 8, 10, 30, 4, false);
             BufferedImage im = new BufferedImage(466, 466, BufferedImage.TYPE_INT_RGB); im.setRGB(0, 0, 466, 466, pv, 0, 466);
