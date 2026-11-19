@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
     private static final String[] SURPRISE_FONTS = {"sans-serif-black", "sans-serif-condensed", "sans-serif-light", "sans-serif-medium",
             "serif", "monospace", "casual"};
     private static final int THUMB_PX = 400;
-    private static final String GALLERY_VER = "7";        // bump when the renderer changes
+    private static final String GALLERY_VER = "8";        // bump when the renderer changes
     private static final int[][] ART_PALETTES = palettes();
 
     private Ui ui;

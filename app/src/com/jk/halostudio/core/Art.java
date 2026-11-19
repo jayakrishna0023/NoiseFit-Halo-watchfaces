@@ -11,7 +11,7 @@ public final class Art {
     public static final String[] NAMES = {"Nebula", "Aurora", "Dunes", "Synthwave", "Planet", "Bokeh", "Mesh",
             "Topography", "Low poly", "Waves", "Rings", "Sunburst", "Marble", "Starfield", "Halftone", "Minimal",
             "Black hole", "Liquid", "Flow", "Mountains", "Crystal", "Tunnel", "Glass", "Galaxy", "Circuit", "Kaleido",
-            "Code rain", "Fireflies", "Sunset sea", "Bauhaus", "Xeno core", "HUD scanner", "Reactor"};
+            "Code rain", "Fireflies", "Sunset sea", "Bauhaus", "Xeno core", "HUD scanner", "Reactor", "Gauntlet", "DNA scan", "Energy burst"};
 
     private Art() {}
 
@@ -636,6 +636,95 @@ public final class Art {
                     px[y * S + x] = c;
                 }
                 stars(px, r, 60, 0.9f, glowC);
+                break;
+            }
+            case 33: { // Gauntlet: heavy bezel with raised plates + bolts, glowing inner ring, domed energy core
+                int dark = scale(pal[0], 0.7f), glowC = pal[pal.length - 1], mid = pal[Math.min(1, pal.length - 1)];
+                int metal = mix(mid, 0xFF9CA3AF, 0.35f);
+                for (int y = 0; y < S; y++) for (int x = 0; x < S; x++) {
+                    float dx = x - 233, dy = y - 233, d = (float) Math.hypot(dx, dy), a = (float) Math.atan2(dy, dx);
+                    float light = 0.55f + 0.45f * (float) Math.cos(a + 2.3f);            // light from top-left
+                    int c;
+                    if (d > 176) {                                                       // bezel
+                        float u = (float) (((a / 6.28318f) * 4 + 4.125f) % 1);           // 4 plates
+                        boolean gap = Math.min(u, 1 - u) < 0.03f;
+                        c = scale(metal, (gap ? 0.35f : 0.55f + 0.45f * light) * (0.9f + 0.1f * n.value(a * 40, d / 6f)));
+                        c = mix(c, scale(metal, 0.3f), smooth(2f, 0f, Math.abs(d - 178)) * 0.8f);
+                        if (gap) c = add(c, glowC, 0.55f * smooth(176, 190, d));
+                    } else {
+                        c = scale(dark, 0.7f + 0.3f * (1 - d / 176f));
+                        float spokes = (float) Math.abs(Math.sin(a * 6));
+                        c = mix(c, scale(mid, 0.5f), smooth(0.97f, 1f, spokes) * smooth(60, 80, d) * smooth(176, 150, d) * 0.6f);
+                    }
+                    c = add(c, glowC, smooth(3.5f, 0f, Math.abs(d - 168)) * 0.95f + (float) Math.exp(-(d - 168) * (d - 168) / 220f) * 0.3f);
+                    if (d < 70) {                                                        // domed core
+                        float z = (float) Math.sqrt(Math.max(0, 1 - d * d / 4900f));
+                        int core = mix(scale(glowC, 0.25f), glowC, 0.25f + 0.55f * z);
+                        float spec = (float) Math.exp(-((dx + 22) * (dx + 22) + (dy + 26) * (dy + 26)) / 220f);
+                        c = mix(c, add(core, 0xFFFFFFFF, spec * 0.8f), smooth(70, 66, d));
+                        float chev = Math.abs(Math.abs(dx) - Math.abs(dy) * 0.6f);       // X-chevron emblem
+                        if (d < 48) c = mix(c, scale(dark, 0.4f), smooth(7, 4, chev) * 0.55f);
+                    }
+                    c = add(c, glowC, smooth(2f, 0f, Math.abs(d - 72)) * 0.8f);
+                    px[y * S + x] = c;
+                }
+                for (int k = 0; k < 8; k++) {                                            // bolts
+                    double a = Math.toRadians(k * 45 + 22.5);
+                    float bx = 233 + (float) Math.cos(a) * 205, by = 233 + (float) Math.sin(a) * 205;
+                    disc(px, bx, by, 6, scale(metal, 0.45f), 1f, 1f);
+                    disc(px, bx - 1.5f, by - 1.5f, 3.5f, mix(metal, 0xFFFFFFFF, 0.4f), 1f, 1f);
+                }
+                break;
+            }
+            case 34: { // DNA scan: glowing double helix across the face with base pairs + scan grid
+                vertical(px, scale(pal[0], 0.45f), pal[0]);
+                int glowC = pal[pal.length - 1], c2 = pal[Math.min(2, pal.length - 1)];
+                for (int y = 0; y < S; y++) for (int x = 0; x < S; x++) {
+                    int c = px[y * S + x];
+                    if (x % 24 == 0 || y % 24 == 0) c = add(c, pal[Math.min(1, pal.length - 1)], 0.18f);
+                    px[y * S + x] = c;
+                }
+                // helix runs down the free left side (clear of the clock and date)
+                for (int strand = 0; strand < 2; strand++) {
+                    for (float t = 30; t < S + 10; t += 0.5f) {
+                        float ph = t / 30f + strand * 3.14159f;
+                        float cx = 52 + (t - 60) * 0.32f + (float) Math.sin(ph) * 34, cy = t;
+                        float depth = 0.5f + 0.5f * (float) Math.cos(ph);
+                        disc(px, cx, cy, 2.6f + depth * 2.8f, strand == 0 ? glowC : c2, 0.35f + 0.65f * depth, 1.3f);
+                        disc(px, cx, cy, 10, strand == 0 ? glowC : c2, 0.05f * depth, 9);
+                    }
+                }
+                for (float t = 36; t < S; t += 15) {                                      // base pairs
+                    float ph = t / 30f, base = 52 + (t - 60) * 0.32f;
+                    line(px, base + (float) Math.sin(ph) * 34, t, base + (float) Math.sin(ph + 3.14159f) * 34, t, 2.2f, mix(glowC, c2, 0.5f), 0.5f);
+                }
+                for (int k = 0; k < 4; k++) {                                              // scan readout bars, bottom right
+                    float w = 40 + r.nextFloat() * 80;
+                    for (int y = 330 + k * 14; y < 338 + k * 14; y++) for (int x = 250; x < 250 + w; x++) px[y * S + x] = mix(px[y * S + x], k % 2 == 0 ? glowC : c2, 0.55f);
+                }
+                for (int y = 0; y < S; y += 3) for (int x = 0; x < S; x++) px[y * S + x] = scale(px[y * S + x], 0.9f);
+                break;
+            }
+            case 35: { // Energy burst: transformation flash — rays, shock rings, sparks
+                fill(px, scale(pal[0], 0.35f));
+                int glowC = pal[pal.length - 1];
+                float[] rays = new float[24];
+                for (int i = 0; i < rays.length; i++) rays[i] = 0.4f + r.nextFloat() * 0.6f;
+                for (int y = 0; y < S; y++) for (int x = 0; x < S; x++) {
+                    float dx = x - 233, dy = y - 233, d = (float) Math.hypot(dx, dy), a = (float) Math.atan2(dy, dx);
+                    float u = (a + 3.14159f) / 6.28318f * rays.length;
+                    int i = Math.min(rays.length - 1, (int) u);
+                    float w = Math.abs(u - i - 0.5f);
+                    float ray = smooth(0.32f, 0.02f, w) * rays[i] * (float) Math.exp(-d / (120 + rays[i] * 140)) * (0.45f + 0.55f * smooth(20, 120, d));
+                    int c = add(px[y * S + x], ramp(pal, 0.6f + 0.4f * ray), ray * 0.9f);
+                    c = add(c, glowC, (float) Math.exp(-d * d / 900f) * 0.5f);
+                    for (float rr : new float[]{95, 150, 205}) c = add(c, glowC, (float) Math.exp(-(d - rr) * (d - rr) / 18f) * (0.5f - rr / 600f));
+                    px[y * S + x] = c;
+                }
+                for (int k = 0; k < 140; k++) {
+                    float aa = r.nextFloat() * 6.28f, rr = 40 + (float) Math.pow(r.nextFloat(), 0.7) * 200;
+                    disc(px, 233 + (float) Math.cos(aa) * rr, 233 + (float) Math.sin(aa) * rr, 0.8f + r.nextFloat() * 1.6f, mix(glowC, 0xFFFFFFFF, 0.5f), 0.9f, 0.8f);
+                }
                 break;
             }
             default: { // Minimal

@@ -341,7 +341,7 @@ final class Ui {
                 case 27: case 18: return FIREFLY;
                 case 12: case 20: case 8: case 29: case 14: case 15: case 10: return SHIMMER;
                 case 11: case 2: case 28: return EMBERS;
-                case 30: case 31: case 32: return SCAN;
+                case 30: case 31: case 32: case 33: case 34: case 35: return SCAN;
                 default: return STARS;
             }
         }

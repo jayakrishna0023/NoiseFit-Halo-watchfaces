@@ -13,8 +13,8 @@ over Bluetooth, without the official app's paid customisation.
 ## Features
 | Area | What you can do |
 |---|---|
-| Gallery | **102 preinstalled faces** in 10 categories (Alien Tech, Cosmic, Space, Nature, Luxury, Cyber, Neon, Abstract, Minimal, Retro), search, face of the day, **🎲 Surprise** (random readable face), animated detail view with live time |
-| Generative art | **33 procedural art styles** (nebula, aurora, dunes, synthwave, planet, bokeh, mesh, topography, low-poly, waves, rings, sunburst, marble, starfield, halftone, minimal, black hole, liquid chrome, flow field, mountains, crystal, neon tunnel, glass, spiral galaxy, circuit, kaleidoscope, code rain, fireflies, sunset sea, Bauhaus, xeno core, HUD scanner, plasma reactor) × palettes × seeds — all original, generated on the phone |
+| Gallery | **117 preinstalled faces** in 10 categories (Alien Tech, Cosmic, Space, Nature, Luxury, Cyber, Neon, Abstract, Minimal, Retro), search, face of the day, **🎲 Surprise** (random readable face), animated detail view with live time |
+| Generative art | **36 procedural art styles** (nebula, aurora, dunes, synthwave, planet, bokeh, mesh, topography, low-poly, waves, rings, sunburst, marble, starfield, halftone, minimal, black hole, liquid chrome, flow field, mountains, crystal, neon tunnel, glass, spiral galaxy, circuit, kaleidoscope, code rain, fireflies, sunset sea, Bauhaus, xeno core, HUD scanner, plasma reactor, gauntlet, DNA scan, energy burst) × palettes × seeds — all original, generated on the phone |
 | Layouts | **Galaxy** (big clock, movable) · **Moon** (stacked clock + AM/PM on tiles) — from your own captured faces |
 | Background | Generative art · photo with **interactive crop** (drag, pinch, rotate) · 10 gradients + custom · solid colour |
 | Effects | Brightness, contrast, saturation, blur, vignette, black & white |
