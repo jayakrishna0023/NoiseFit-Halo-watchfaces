@@ -1,0 +1,12 @@
+# never publish: Noise templates, personal IDs, captures, builds
+app/private_assets/
+app/build/
+app/pctest/out*/
+*.apk
+*.raw
+*.bin
+bugreport*.zip
+*.log
+faces/
+local_config.json
+!release/Lumina.apk
