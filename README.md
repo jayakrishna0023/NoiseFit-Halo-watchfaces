@@ -1,6 +1,6 @@
 # Lumina — living watch faces for NoiseFit Halo
 
-> Formerly *Halo Studio*. **Download:** [release/Lumina.apk](release/Lumina.apk) (public build — import your own templates & user ID, see Setup).
+> Formerly *Halo Studio*. **Download:** [⬇ Lumina.apk (direct download)](https://github.com/jayakrishna0023/NoiseFit-Halo-watchfaces/raw/main/release/Lumina.apk) (public build — import your own templates & user ID, see Setup).
 
 Open-source watch-face designer for the **NoiseFit Halo** (model NSW-301, ZH/"Apricot" protocol, Realtek chip).
 Design faces on your Android phone — photos, gradients, fonts, colours, stickers, text — and install them

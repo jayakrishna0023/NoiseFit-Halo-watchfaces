@@ -152,6 +152,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
     // ------------------------------------------------------------------ lifecycle
     @Override
     protected void onCreate(Bundle b) {
+        installCrashCatcher();
         boolean light = getSharedPreferences("halo", MODE_PRIVATE).getBoolean("lightTheme", true);
         Ui.applyTheme(light);
         setTheme(light ? android.R.style.Theme_Material_Light_NoActionBar : android.R.style.Theme_Material_NoActionBar);
@@ -163,10 +164,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         Window w = getWindow();
         w.setStatusBarColor(Ui.BG);
         w.setNavigationBarColor(Ui.CARD);
-        if (w.getInsetsController() != null) {
-            int lightBars = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
-            w.getInsetsController().setSystemBarsAppearance(Ui.LIGHT ? lightBars : 0, lightBars);
-        }
+
         main = new Handler(Looper.getMainLooper());
         HandlerThread rt = new HandlerThread("render"); rt.start(); render = new Handler(rt.getLooper());
         HandlerThread bt = new HandlerThread("ble"); bt.start(); ble = new Handler(bt.getLooper());
@@ -207,7 +205,13 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         shell.addView(buildNav());
         root.addView(shell, new FrameLayout.LayoutParams(-1, -1));
         setContentView(root);
+        try {   // only valid once the window has a decor view (after setContentView)
+            android.view.WindowInsetsController ic = w.getInsetsController();
+            int lightBars = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+            if (ic != null) ic.setSystemBarsAppearance(Ui.LIGHT ? lightBars : 0, lightBars);
+        } catch (RuntimeException ignored) { }
         if (b == null) splash(root);
+        main.postDelayed(this::showLastCrash, 1900);
 
         statusView.setText(galaxyT == null && moonT == null
                 ? "No face templates yet — Watch → Import template."
@@ -217,6 +221,44 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         if (checkSelfPermission("android.permission.BLUETOOTH_CONNECT") != PackageManager.PERMISSION_GRANTED)
             requestPermissions(new String[]{"android.permission.BLUETOOTH_CONNECT"}, 2);
         if (getIntent().getBooleanExtra("selftest", false)) render.post(this::selfTest);
+    }
+
+    /** Saves any crash (with stack trace) to files/crash.txt so the next launch can show and copy it. */
+    private void installCrashCatcher() {
+        final Thread.UncaughtExceptionHandler prev = Thread.getDefaultUncaughtExceptionHandler();
+        final File f = new File(getFilesDir(), "crash.txt");
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            try (java.io.PrintWriter pw = new java.io.PrintWriter(new FileOutputStream(f))) {
+                pw.println("Lumina " + versionName() + " · Android " + android.os.Build.VERSION.RELEASE + " · " + android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL);
+                pw.println("Thread: " + t.getName());
+                e.printStackTrace(pw);
+            } catch (Exception ignored) { }
+            if (prev != null) prev.uncaughtException(t, e);
+        });
+    }
+
+    private String versionName() {
+        try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception e) { return "?"; }
+    }
+
+    private void showLastCrash() {
+        File f = new File(getFilesDir(), "crash.txt");
+        if (!f.exists()) return;
+        String txt;
+        try { txt = new String(java.nio.file.Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8); }
+        catch (Exception e) { f.delete(); return; }
+        final String report = txt.length() > 6000 ? txt.substring(0, 6000) : txt;
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Lumina closed unexpectedly last time")
+                .setMessage("Tap Copy error and paste it to the developer so it can be fixed.\n\n" + report)
+                .setPositiveButton("Copy error", (dlg, w) -> {
+                    android.content.ClipboardManager cm = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("Lumina crash", report));
+                    f.delete();
+                    status("Error copied — paste it in your message.");
+                })
+                .setNegativeButton("Dismiss", (dlg, w) -> f.delete())
+                .show();
     }
 
     /** Animated launch: the logo spins in, the name fades up, then the app slides into view. */
@@ -231,8 +273,10 @@ public class MainActivity extends Activity implements WatchLink.Listener {
         TextView nm = ui.text("Lumina", 34, Ui.TEXT, true);
         Ui.gradientText(nm, Ui.HEAD_A, Ui.HEAD_B, Ui.ACCENT2);
         nm.setPadding(0, ui.dp(16), 0, 0);
+        nm.setGravity(Gravity.CENTER);
         col.addView(nm);
         TextView tag = ui.text("living watch faces for your Halo", 13, Ui.MUTED, false);
+        tag.setGravity(Gravity.CENTER);
         col.addView(tag);
         sp.addView(col, new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER));
         root.addView(sp, new FrameLayout.LayoutParams(-1, -1));
@@ -280,6 +324,8 @@ public class MainActivity extends Activity implements WatchLink.Listener {
             it.addView(navIcons[i], new LinearLayout.LayoutParams(ui.dp(22), ui.dp(22)));
             navLabels[i] = ui.text(NAV[i], 11, Ui.MUTED, true);
             navLabels[i].setPadding(0, ui.dp(3), 0, 0);
+            navLabels[i].setGravity(Gravity.CENTER);
+            navLabels[i].setSingleLine(true);
             it.addView(navLabels[i]);
             it.setOnClickListener(v -> show(idx));
             ui.pressable(it);
@@ -372,7 +418,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
 
         c.addView(hero());
 
-        EditText search = field(query, "🔍  Search faces or styles (galaxy, neon, gold…)");
+        EditText search = field(query, "🔍  Search faces or styles");
         search.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence q, int a, int b, int c2) {}
             @Override public void onTextChanged(CharSequence q, int a, int b, int c2) {}
@@ -1576,8 +1622,7 @@ public class MainActivity extends Activity implements WatchLink.Listener {
     private static Bitmap roundBitmap(int[] px, int out) {
         Bitmap sq = Bitmap.createBitmap(px, Composer.W, Composer.H, Bitmap.Config.ARGB_8888);
         Bitmap res = Bitmap.createBitmap(out, out, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(res);
-        c.drawColor(Color.BLACK);
+        Canvas c = new Canvas(res);           // transparent outside the round face (no square corners)
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
         Bitmap scaled = out == Composer.W ? sq : Bitmap.createScaledBitmap(sq, out, out, true);
         p.setShader(new BitmapShader(scaled, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));

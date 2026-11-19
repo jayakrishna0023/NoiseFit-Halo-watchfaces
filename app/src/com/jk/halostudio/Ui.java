@@ -197,8 +197,9 @@ final class Ui {
 
     static void gradientText(TextView t, int... colors) {
         t.post(() -> {
-            float w = t.getPaint().measureText(t.getText().toString());
-            t.getPaint().setShader(new android.graphics.LinearGradient(0, 0, w, 0, colors, null, android.graphics.Shader.TileMode.CLAMP));
+            float x0 = 0, x1 = t.getPaint().measureText(t.getText().toString());
+            if (t.getLayout() != null) { x0 = t.getLayout().getLineLeft(0); x1 = t.getLayout().getLineRight(0); }
+            t.getPaint().setShader(new android.graphics.LinearGradient(x0, 0, x1, 0, colors, null, android.graphics.Shader.TileMode.CLAMP));
             t.invalidate();
         });
     }
